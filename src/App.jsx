@@ -9,6 +9,7 @@ import {
 export default function ElvoTechLanding() {
   const [lang, setLang] = useState("en");
   const [selectedService, setSelectedService] = useState("");
+  const [status, setStatus] = useState("")
   const contactRef = useRef(null); // Referencia para el scroll
 
   const content = {
@@ -76,6 +77,32 @@ export default function ElvoTechLanding() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("sending");
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries()); // Convierte a JSON
+    data.service = selectedService;
+
+    try {
+      const response = await fetch("https://broad-mode-4a5e.gloria-oporto.workers.dev", { // <--- URL DE TU WORKER
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        setStatus("success");
+        e.target.reset();
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      setStatus("error");
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-montserrat">
       {/* Navbar */}
@@ -132,21 +159,21 @@ export default function ElvoTechLanding() {
 
           <Card className="shadow-2xl border-none">
             <CardContent className="p-8 md:p-12">
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Name */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold flex items-center gap-2 italic text-slate-700">
                       <User className="w-4 h-4" /> {t.form.name}
                     </label>
-                    <input type="text" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="John Doe" />
+                    <input name="name" type="text" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="John Doe" />
                   </div>
                   {/* Email */}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold flex items-center gap-2 italic text-slate-700">
                       <Mail className="w-4 h-4" /> {t.form.email} *
                     </label>
-                    <input required type="email" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="john@example.com" />
+                    <input name="email" required type="email" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="john@example.com" />
                   </div>
                 </div>
 
@@ -156,7 +183,7 @@ export default function ElvoTechLanding() {
                     <label className="text-sm font-semibold flex items-center gap-2 italic text-slate-700">
                       <Phone className="w-4 h-4" /> {t.form.phone}
                     </label>
-                    <input type="tel" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="+1 (000) 000-0000" />
+                    <input name="phone" type="tel" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="+1 (000) 000-0000" />
                   </div>
                   {/* Service Dropdown */}
                   <div className="space-y-2">
@@ -164,6 +191,7 @@ export default function ElvoTechLanding() {
                       <Settings2 className="w-4 h-4" /> {t.form.service}
                     </label>
                     <select 
+                      name="service"
                       value={selectedService} 
                       onChange={(e) => setSelectedService(e.target.value)}
                       className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none bg-white transition"
@@ -181,12 +209,14 @@ export default function ElvoTechLanding() {
                   <label className="text-sm font-semibold flex items-center gap-2 italic text-slate-700">
                     <MessageSquare className="w-4 h-4" /> {t.form.description}
                   </label>
-                  <textarea rows="4" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Tell us about your project..."></textarea>
+                  <textarea name="message" rows="4" className="w-full p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Tell us about your project..."></textarea>
                 </div>
 
                 <Button className="w-full py-6 text-lg bg-blue-600 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
                   {t.form.send}
                 </Button>
+                {status === "success" && (<p className="text-green-600 text-center">Message sent successfully.</p>)}
+                {status === "error" && (<p className="text-red-600 text-center">Something went wrong.</p>)}
               </form>
             </CardContent>
           </Card>
