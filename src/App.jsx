@@ -14,7 +14,7 @@ export default function ElvoTechLanding() {
   const content = {
     en: {
       title: "",
-      subtitle: "Technology Solutions for Modern Businesses",
+      subtitle: "Technology Solutions for Modern Businesses.",
       description: "ElvoTech Solutions provides innovative, secure, and scalable technology services to help businesses grow.",
       servicesTitle: "Our Services",
       services: [
